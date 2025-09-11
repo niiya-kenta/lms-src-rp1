@@ -85,5 +85,20 @@
 			blank_time = #{blankTime}
 		WHERE student_attendance_id = #{studentAttendanceId}
 	</update>
+	
+	
+	<select id="notEnterCount" resultType="jp.co.sss.lms.entity.TStudentAttendance">
+		SELECT * 
+		FROM t_student_attendance
+		WHERE lms_user_id = #{lmsUserId} 
+		 	AND delete_flg = #{deleteFlg}
+			AND training_date = #{trainingDate} 
+			AND status != 1
+			AND (training_start_time IS  Null 
+            OR training_end_time Is null
+            OR training_start_time = ''
+            OR training_end_time = '' )
+			
+	</select>
 
 </mapper>
