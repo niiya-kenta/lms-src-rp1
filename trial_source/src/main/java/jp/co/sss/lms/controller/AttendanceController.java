@@ -46,6 +46,17 @@ public class AttendanceController {
 		List<AttendanceManagementDto> attendanceManagementDtoList = studentAttendanceService
 				.getAttendanceManagement(loginUserDto.getCourseId(), loginUserDto.getLmsUserId());
 		model.addAttribute("attendanceManagementDtoList", attendanceManagementDtoList);
+		
+		//↓2025/09/12　ADD-ST
+		/**
+		 * 勤怠管理画面 過去日未入力確認
+		 * 
+		 * @param lmsUserId
+		 * @return 勤怠管理画面
+		 */
+		boolean hasPastNotEntered = studentAttendanceService.hasPastNotEntered(loginUserDto.getLmsUserId());
+		model.addAttribute("hasPastNotEntered", hasPastNotEntered);
+		//↑025/09/12　ADD-ED
 
 		return "attendance/detail";
 	}

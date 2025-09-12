@@ -1,6 +1,7 @@
 package jp.co.sss.lms.service;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,6 +23,8 @@ import jp.co.sss.lms.util.DateUtil;
 import jp.co.sss.lms.util.LoginUserUtil;
 import jp.co.sss.lms.util.MessageUtil;
 import jp.co.sss.lms.util.TrainingTime;
+
+
 
 /**
  * 勤怠情報（受講生入力）サービス
@@ -72,6 +75,24 @@ public class StudentAttendanceService {
 
 		return attendanceManagementDtoList;
 	}
+	
+	//↓2025/09/12　ADD-ST
+	/**
+	 * 勤怠管理画面 過去日未入力確認
+	 * 
+	 * @param lmsUserId
+	 * @return 勤怠管理画面
+	 */
+	public boolean hasPastNotEntered(Integer  lmsUserId) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String todayStr = sdf.format(new Date());
+		java.sql.Date today = java.sql.Date.valueOf(todayStr);
+		Integer count = tStudentAttendanceMapper.notEnterCount(loginUserDto.getLmsUserId(),today, Constants.DB_FLG_FALSE);
+
+        return count > 0;
+    }
+	
+	//↑025/09/12　ADD-ED
 
 	/**
 	 * 出退勤更新前のチェック

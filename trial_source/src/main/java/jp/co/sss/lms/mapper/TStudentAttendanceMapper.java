@@ -64,7 +64,7 @@ public interface TStudentAttendanceMapper {
 	 * @return 更新結果
 	 */
 	Boolean update(TStudentAttendance tStudentAttendance);
-	
+	//↓2025/09/12　ADD-ST
 	/**
 	 *勤怠情報（受講生入力）未入力件数取得（LMSユーザーID＆日付）
 	 * 
@@ -73,7 +73,8 @@ public interface TStudentAttendanceMapper {
 	 * @param deleteFlg
 	 * @return 勤怠情報（受講生入力）エンティティ
 	 */
-	TStudentAttendance notEnterCount(@Param("lmsUserId") Integer lmsUserId,
+	Integer notEnterCount(@Param("lmsUserId") Integer lmsUserId,
 			@Param("trainingDate") Date trainingDate, @Param("deleteFlg") Short deleteFlg);
+	//↑025/09/12　ADD-ED
 
 }
