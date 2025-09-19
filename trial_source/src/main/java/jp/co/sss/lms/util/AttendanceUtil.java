@@ -146,5 +146,31 @@ public class AttendanceUtil {
 		}
 		return false;
 	}
+	
+	
+	
+	/*出勤時間：時*/
+	public LinkedHashMap<String, String> getHourMap() {
+		LinkedHashMap<String, String> map = new LinkedHashMap<>();
+		map.put("", "");
+		for (int i = 0; i < 24;i++) {
+			String hour = String.format("%02d", i);
+			map.put(hour, hour); 
+		}
+		
+		return map;
+	}
+	
+	/*出勤時間：分*/
+	public LinkedHashMap<String, String> getMinuteMap() {
+		LinkedHashMap<String, String> map = new LinkedHashMap<>();
+		map.put("", "");
+		for (int i = 0; i < 60;i++) {
+			String minute = String.format("%02d", i);
+			map.put(minute, minute); 
+		}
+		
+		return map;
+	}
 
 }
