@@ -32,12 +32,18 @@ public class AttendanceForm {
 	/** 日次の勤怠フォームリスト */
 	private List<DailyAttendanceForm> attendanceList;
 	
-	private String trainingStartHour;
-	private String trainingStartMinute;
+	/*ADD-ST　Task26↓*/
 	/** 勤怠時間：時(プルダウン) */
-	private LinkedHashMap<String, String> Hour;
+	private LinkedHashMap<String, String> trainingStartHour;
 	
 	/** 勤怠時間：分(プルダウン) */
-	private LinkedHashMap<String, String> Minute;
+	private LinkedHashMap<String, String> trainingStartMinute;
+	
+	/** 勤怠時間：時(プルダウン) */
+	private LinkedHashMap<String, String> trainingEndHour;
+	
+	/** 勤怠時間：分(プルダウン) */
+	private LinkedHashMap<String, String> trainingEndMinute;
+	/*ADD-ED　Task26↑*/
 
 }
