@@ -49,12 +49,12 @@
 								<td class="w140">[[${dailyAttendanceForm.dispTrainingDate}]]</td>
 								<td class="w300">[[${dailyAttendanceForm.sectionName}]]</td>
 								<td style="display: flex; align-items: center; gap: 4px; white-space: nowrap;">
-									<select th:name="|attendanceList[${stat.index}].trainingStartHour|" class="form-control d-inline-block" style="width: 60px;">
+									<select th:name="|attendanceList[${stat.index}].trainingStartHour|"class="form-control">
 										<option th:each="trainingStartTime : ${attendanceForm.trainingStartHour}" th:value="${trainingStartTime.key}" th:inlne="text" class="form-control" 
 											th:selected="${trainingStartTime.key == dailyAttendanceForm.trainingStartHour}">[[${trainingStartTime.value}]]</option>
 									</select>
 									:
-									<select th:name="|attendanceList[${stat.index}].trainingStartMinute|"class="form-control d-inline-block" style="width: 60px;">
+									<select th:name="|attendanceList[${stat.index}].trainingStartMinute|"class="form-control">
 										<option th:each="trainingStartTime : ${attendanceForm.trainingStartMinute}" th:value="${trainingStartTime.key}" th:inlne="text" class="form-control" 
 											th:selected="${trainingStartTime.key == dailyAttendanceForm.trainingStartMinute}">[[${trainingStartTime.value}]]</option>
 									</select>
@@ -97,7 +97,7 @@
 					<th:block th:if="${session.loginUserDto.role != '0001'}">
 						<input type="submit" value="戻る" name="indexCompany" class="btn btn-default" />
 					</th:block>
-					<input type="submit" value="更新" name="complete" class="btn btn-info" />
+					<input type="submit" value="更新" name="complete" class="btn btn-info"onclick="return confirm('更新してもよろしいですか？');" />
 				</div>
 
 			</form>

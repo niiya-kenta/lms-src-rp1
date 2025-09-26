@@ -51,8 +51,6 @@ public class AttendanceController {
 		/**
 		 * 勤怠管理画面 過去日未入力確認
 		 * 
-		 * @param lmsUserId
-		 * @return 勤怠管理画面
 		 */
 		boolean hasPastNotEntered = studentAttendanceService.hasPastNotEntered(loginUserDto.getLmsUserId());
 		model.addAttribute("hasPastNotEntered", hasPastNotEntered);
