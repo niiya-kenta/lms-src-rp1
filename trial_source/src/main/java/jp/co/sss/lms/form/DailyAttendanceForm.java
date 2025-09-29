@@ -53,6 +53,14 @@ public class DailyAttendanceForm {
     private String trainingEndHour;
     private String trainingEndMinute;
 	/*ADD-ED　Task26↑*/
+	//ADD-ST TASK27↓
+	private Boolean dailyNoteLength;
+	private Boolean startTimeEnter;
+	private Boolean endTimeEnter;
+	private Boolean trainingTimeEnter;
+	private Boolean endTimeOrver;
+	private Boolean blankTimeOrver;
 	
+	//ADD-ED TASK27↑
 
 }

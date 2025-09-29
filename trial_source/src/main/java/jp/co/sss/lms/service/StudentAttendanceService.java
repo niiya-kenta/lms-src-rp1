@@ -4,7 +4,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -321,9 +323,6 @@ public class StudentAttendanceService {
 
 		// 入力された情報を更新用のエンティティに移し替え
 		Date date = new Date();
-		//ADD-ST TASK27↓
-		List<String> errorMessages = new ArrayList<>();
-		//ADD-ED Task27↑
 		for (DailyAttendanceForm dailyAttendanceForm : attendanceForm.getAttendanceList()) {
 			// 更新用エンティティ作成
 			TStudentAttendance tStudentAttendance = new TStudentAttendance();
@@ -346,13 +345,15 @@ public class StudentAttendanceService {
 			/*ADD-ST　Task26↓*/
 			String startHour = dailyAttendanceForm.getTrainingStartHour();
 			String startMinute = dailyAttendanceForm.getTrainingStartMinute();
-			String stratTime =startHour+startMinute;
+			
 			/*ADD-ED　Task26↑*/
-			
-			
 			/*CHG-ST　Task26↓*/
 			/*trainingStartTime = new TrainingTime(dailyAttendanceForm.getTrainingStartHour());*/
-			trainingStartTime = new TrainingTime(stratTime);
+			if(startHour!=null&&startMinute!=null) {
+				String stratTime =startHour+startMinute;
+				trainingStartTime = new TrainingTime(stratTime);
+			}
+			
 			/*CHG-ED　Task26↑*/
 			tStudentAttendance.setTrainingStartTime(trainingStartTime.getFormattedString());
 			// 退勤時刻整形
@@ -360,12 +361,16 @@ public class StudentAttendanceService {
 			/*ADD-ST　Task26↓*/
 			String endHour = dailyAttendanceForm.getTrainingEndHour();
 			String endtMinute = dailyAttendanceForm.getTrainingEndMinute();
-			String endTime =endHour+endtMinute;
+			
 			/*ADD-ED　Task26↑*/
 			
 			/*CHG-ST　Task26↓*/
 			/*trainingEndTime = new TrainingTime(dailyAttendanceForm.getTrainingEndTime());*/
-			trainingEndTime = new TrainingTime(endTime);
+			if(endHour!=null&&endtMinute!=null) {
+				String endTime =endHour+endtMinute;
+				trainingEndTime = new TrainingTime(endTime);
+			}
+			
 			/*CHG-ED　Task26↑*/
 			tStudentAttendance.setTrainingEndTime(trainingEndTime.getFormattedString());
 			// 中抜け時間
@@ -387,55 +392,8 @@ public class StudentAttendanceService {
 			// 登録用Listへ追加
 			tStudentAttendanceList.add(tStudentAttendance);
 			
-			//ADD-ST TASK27↓
-			String dailyNote = dailyAttendanceForm.getNote();
-			Boolean entrStartTime = startHour==null && startMinute==null;
-			String errorDate=dailyAttendanceForm.getTrainingDate();
-
-			//備考文字数チェック
-			if(dailyNote.length()>100 && dailyNote!=null ) {
-				errorMessages.add(errorDate+"備考の長さが100を超えています。");
-			}
-			
-			//出勤時間入力チェック
-			if((startHour==null && startMinute!=null  ) ||
-				(startHour!=null && startMinute==null  )) {
-				errorMessages.add(errorDate+"出勤時間が正しく入力されていません");
-			}
-			
-			//退勤時間入力チェック
-			if((endHour==null && endtMinute!=null ) ||
-				(endHour!=null && endtMinute==null )) {
-				errorMessages.add(errorDate+"退勤時間が正しく入力されていません");
-			}
-			//退勤時間のみ入力済み
-			if(entrStartTime&&trainingEndTime!=null ) {
-				errorMessages.add(errorDate+"出席の場合は、開始時間と終了時間を入力して下さい。");
-			}
-			
-			
-			if (startHour!=null &&startMinute!=null&& endHour!=null&&endtMinute!=null&&
-				!startHour.isEmpty() &&!startMinute.isEmpty()&& !endHour.isEmpty()&&!endtMinute.isEmpty()	) {
-				int start = Integer.parseInt(startHour)*60+Integer.parseInt(startMinute);
-				int end = Integer.parseInt(endHour)*60+Integer.parseInt(endtMinute);
-				//出勤時間＞退勤時間チェック
-				if(start > end) {
-					errorMessages.add(errorDate+"退勤時刻は出勤時刻より後でなければいけません。");
-				}
-				//中抜け時間チェック
-				Integer blankTime=dailyAttendanceForm.getBlankTime();
-				if(blankTime!=null) {
-					if(end-start<blankTime) {
-						errorMessages.add(errorDate+"中抜け時間が勤務時間を超えています。");
-					}
-				}
-			}
-
-			//ADD-ED TASK27↑
 			
 		}
-		
-		errorMessages.forEach(System.out::println);
 		// 登録・更新処理
 		for (TStudentAttendance tStudentAttendance : tStudentAttendanceList) {
 			if (tStudentAttendance.getStudentAttendanceId() == null) {
@@ -448,6 +406,122 @@ public class StudentAttendanceService {
 		}
 		// 完了メッセージ
 		return messageUtil.getMessage(Constants.PROP_KEY_ATTENDANCE_UPDATE_NOTICE);
+	}
+	public Set<String> checkAttendanceForm(AttendanceForm attendanceForm) throws ParseException {
+		// 入力された情報を更新用のエンティティに移し替え
+		Date date = new Date();
+		//ADD-ST TASK27↓
+		Set<String> errorMessages = new LinkedHashSet<>();
+		//ADD-ED Task27↑
+		for (DailyAttendanceForm dailyAttendanceForm : attendanceForm.getAttendanceList()) {
+		// 更新用エンティティ作成
+			TStudentAttendance tStudentAttendance = new TStudentAttendance();
+			// 日次勤怠フォームから更新用のエンティティにコピー
+			BeanUtils.copyProperties(dailyAttendanceForm, tStudentAttendance);
+			// 研修日付
+			tStudentAttendance.setTrainingDate(dateUtil.parse(dailyAttendanceForm.getTrainingDate()));
+			// 現在の勤怠情報リストのうち、研修日が同じものを更新用エンティティで上書き
+
+			tStudentAttendance.setAccountId(loginUserDto.getAccountId());
+			// 出勤時刻整形
+
+			TrainingTime trainingStartTime = null;
+			String startHour = dailyAttendanceForm.getTrainingStartHour();
+			String startMinute = dailyAttendanceForm.getTrainingStartMinute();
+			if(startHour!=null&&startMinute!=null&&!startHour.isEmpty()&&!startMinute.isEmpty()) {
+				String stratTime =startHour+startMinute;
+				trainingStartTime = new TrainingTime(stratTime);
+				tStudentAttendance.setTrainingStartTime(trainingStartTime.getFormattedString());
+			}
+			
+			// 退勤時刻整形
+			TrainingTime trainingEndTime = null;
+			String endHour = dailyAttendanceForm.getTrainingEndHour();
+			String endMinute = dailyAttendanceForm.getTrainingEndMinute();
+			if(endHour!=null&&endMinute!=null&&!endHour.isEmpty()&&!endMinute.isEmpty()) {
+				String endTime =endHour+endMinute;
+				trainingEndTime = new TrainingTime(endTime);
+				tStudentAttendance.setTrainingEndTime(trainingEndTime.getFormattedString());
+			}
+			
+			// 中抜け時間
+			tStudentAttendance.setBlankTime(dailyAttendanceForm.getBlankTime());
+			// 遅刻早退ステータス
+			if ((trainingStartTime != null || trainingEndTime != null)
+				&& !dailyAttendanceForm.getStatusDispName().equals("欠席")) {
+			AttendanceStatusEnum attendanceStatusEnum = attendanceUtil
+					.getStatus(trainingStartTime, trainingEndTime);
+			tStudentAttendance.setStatus(attendanceStatusEnum.code);
+			}
+			// 備考
+			tStudentAttendance.setNote(dailyAttendanceForm.getNote());
+			// 更新者と更新日時
+			tStudentAttendance.setLastModifiedUser(loginUserDto.getLmsUserId());
+			tStudentAttendance.setLastModifiedDate(date);
+			// 削除フラグ
+			tStudentAttendance.setDeleteFlg(Constants.DB_FLG_FALSE);
+
+		
+			//ADD-ST TASK27↓
+			String dailyNote = dailyAttendanceForm.getNote();
+			Boolean entrStartTime = startHour.isEmpty() && startMinute.isEmpty();
+			Boolean entrEndTime = endHour.isEmpty() && endMinute.isEmpty();
+
+			//備考文字数チェック
+			if(dailyNote.length()>100 && dailyNote!=null ) {
+				errorMessages.add("備考の長さが100を超えています。");
+				dailyAttendanceForm.setDailyNoteLength(true);
+			}
+		
+			//出勤時間入力チェック
+			if((startHour!=null&&startMinute==null)||
+				(!startHour.isEmpty()&&startMinute.isEmpty())||
+				(startHour==null&&startMinute!=null)||
+				(startHour.isEmpty()&&!startMinute.isEmpty()))
+			 {
+				errorMessages.add("出勤時間が正しく入力されていません");
+				dailyAttendanceForm.setStartTimeEnter(true);
+			}
+		
+			//退勤時間入力チェック
+			if((endHour!=null&&endMinute==null)||
+					(!endHour.isEmpty()&&endMinute.isEmpty())||
+					(endHour==null&&endMinute!=null)||
+					(endHour.isEmpty()&&!endMinute.isEmpty())) {
+			
+				errorMessages.add("退勤時間が正しく入力されていません");
+				dailyAttendanceForm.setEndTimeEnter(true);
+			}
+			//退勤時間のみ入力済み
+			if(!entrStartTime&&entrEndTime) {
+				errorMessages.add("出席の場合は、開始時間と終了時間を入力して下さい。");
+				dailyAttendanceForm.setTrainingTimeEnter(true);
+			}
+		
+		
+			if (startHour!=null &&startMinute!=null&& endHour!=null&&endMinute!=null&&
+					!startHour.isEmpty() &&!startMinute.isEmpty()&& !endHour.isEmpty()&&!endMinute.isEmpty()	) {
+				int start = Integer.parseInt(startHour)*60+Integer.parseInt(startMinute);
+				int end = Integer.parseInt(endHour)*60+Integer.parseInt(endMinute);
+				//出勤時間＞退勤時間チェック
+				if(start > end) {
+					errorMessages.add("退勤時刻は出勤時刻より後でなければいけません。");
+					dailyAttendanceForm.setEndTimeOrver(true);
+				}
+				//中抜け時間チェック
+				Integer blankTime=dailyAttendanceForm.getBlankTime();
+				if(blankTime!=null) {
+					if(end-start<blankTime) {
+						errorMessages.add("中抜け時間が勤務時間を超えています。");
+						dailyAttendanceForm.setBlankTimeOrver(true);
+					}
+				}
+			}
+
+		//ADD-ED TASK27↑
+		
+		}
+		return errorMessages;
 	}
 
 }

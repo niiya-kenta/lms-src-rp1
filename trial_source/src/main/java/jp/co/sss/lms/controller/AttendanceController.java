@@ -2,6 +2,7 @@ package jp.co.sss.lms.controller;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,7 +16,6 @@ import jp.co.sss.lms.dto.LoginUserDto;
 import jp.co.sss.lms.form.AttendanceForm;
 import jp.co.sss.lms.service.StudentAttendanceService;
 import jp.co.sss.lms.util.Constants;
-
 /**
  * 勤怠管理コントローラ
  * 
@@ -141,7 +141,19 @@ public class AttendanceController {
 	@RequestMapping(path = "/update", params = "complete", method = RequestMethod.POST)
 	public String complete(AttendanceForm attendanceForm, Model model, BindingResult result)
 			throws ParseException {
-
+		
+		Set<String> errorMessages = studentAttendanceService.checkAttendanceForm(attendanceForm);
+		if (!errorMessages.isEmpty()) {
+			List<AttendanceManagementDto> attendanceManagementDtoList = studentAttendanceService
+		            .getAttendanceManagement(loginUserDto.getCourseId(), loginUserDto.getLmsUserId());
+		    AttendanceForm updatedForm = studentAttendanceService
+		            .setAttendanceForm(attendanceManagementDtoList);
+		    updatedForm.setAttendanceList(attendanceForm.getAttendanceList());
+		    model.addAttribute("attendanceForm", updatedForm);
+		    model.addAttribute("errorMessages", errorMessages);
+		    
+		    return "attendance/update";
+		}
 		// 更新
 		String message = studentAttendanceService.update(attendanceForm);
 		model.addAttribute("message", message);
